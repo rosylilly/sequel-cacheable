@@ -151,7 +151,7 @@ module Sequel::Plugins
       end
 
       def after_initialize
-        store_cache
+        store_cache unless id.nil?
         super
       end
 

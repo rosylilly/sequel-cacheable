@@ -163,6 +163,12 @@ describe Sequel::Plugins::Cacheable do
           @obj = RedisModel[50]
         end
 
+        it "unstored cache on new" do
+          before_count = RedisCli.keys.length
+          RedisModel.new({:string => 'test'})
+          RedisCli.keys.length.should == before_count
+        end
+
         it "stored cache" do
           RedisModel.cache_get(@obj.cache_key).should == @obj
         end
