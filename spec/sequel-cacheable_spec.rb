@@ -13,7 +13,7 @@ describe Sequel::Plugins::Cacheable do
 
     its("columns") { should == [:id, :string, :int, :float, :time]}
 
-    its("plugins") { 
+    its("plugins") {
       should_not include(Sequel::Plugins::Cacheable)
       SpecModel.plugin :cacheable
       should include(Sequel::Plugins::Cacheable)
