@@ -44,7 +44,7 @@ module Sequel::Plugins
 
         ttl = ttl || cache_options.ttl
         if cache_options.pack_lib?
-          obj = obj.map{|o| o.msgpack_hash } if obj.kind_of?(Array)
+          obj = obj.map{|o| o.id } if obj.kind_of?(Array)
           obj = cache_options.pack_lib.pack(obj)
         end
 
@@ -85,7 +85,7 @@ module Sequel::Plugins
       def restore_cache(object)
         return object if object.nil?
 
-        return object.map{|o| restore_cache(o) } if object.kind_of?(Array)
+        return object.map{|id| cache_get("#{model}::#{id}") } if object.kind_of?(Array)
 
         object.keys.each do | key |
           value = object.delete(key)
@@ -100,6 +100,7 @@ module Sequel::Plugins
       end
 
       def clear_query_cache
+        return unless cache_options.query_cache?
         cache_store.keys("#{model.name}::Query::*").each do | key |
           cache_del(key)
         end

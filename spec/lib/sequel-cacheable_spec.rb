@@ -70,6 +70,54 @@ describe Sequel::Plugins::Cacheable do
         MemcacheModel.cache_get('MemcacheModel::test').should be_nil
       end
     end
+
+    describe "act as cache" do
+      context "Model[40]" do
+        before do
+          @obj = MemcacheModel[40]
+        end
+
+        it "stored cache" do
+          MemcacheModel.cache_get(@obj.cache_key).should == @obj
+        end
+
+        it "restoreble cache data" do
+          cached = MessagePack.unpack(MemcacheCli.get(@obj.cache_key))
+          cached['string'].should == @obj.string
+          Time.at(cached['time'][0], cached['time'][1]).should === @obj.time
+        end
+
+        it "update cache data" do
+          @obj.string = 'modified++'
+          cached = MessagePack.unpack(MemcacheCli.get(@obj.cache_key))
+          cached['string'].should_not == @obj.string
+          @obj.save
+          cached = MessagePack.unpack(MemcacheCli.get(@obj.cache_key))
+          cached['string'].should == @obj.string
+        end
+
+        it "delete cache data" do
+          cache_key = @obj.cache_key; @obj.delete
+          MemcacheCli.get(cache_key).should be_nil
+          MemcacheModel[40].should be_nil
+        end
+
+        it "destroy cache data" do
+          @obj = MemcacheModel[41]
+          cache_key = @obj.cache_key; @obj.destroy
+          MemcacheCli.get(cache_key).should be_nil
+          MemcacheModel[41].should be_nil
+        end
+      end
+    end
+
+    describe "query cache" do
+      it "get" do
+        MemcacheModel.all.should == MemcacheModel.all
+      end
+
+      pending "not supported query cache on Memcache Client"
+    end
   end
 
   context RedisModel do
@@ -116,7 +164,7 @@ describe Sequel::Plugins::Cacheable do
         end
 
         it "stored cache" do
-          RedisCli.keys(@obj.cache_key).should == [@obj.cache_key]
+          RedisModel.cache_get(@obj.cache_key).should == @obj
         end
 
         it "restoreble cache data" do
