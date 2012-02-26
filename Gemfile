@@ -26,4 +26,5 @@ group :development do
   gem "sqlite3"
   gem "memcache"
   gem "redis"
+  gem "queencheck"
 end

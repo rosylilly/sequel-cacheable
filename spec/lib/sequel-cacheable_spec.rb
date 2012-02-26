@@ -7,7 +7,32 @@ class MemcacheModel < Sequel::Model(:spec)
   plugin :cacheable, MemcacheCli
 end
 
+QueenCheck::Arbitrary(Float, Fixnum.arbitrary.gen)
+QueenCheck::Arbitrary(String, QueenCheck::Gen.quadratic(200).bind { | length |
+    if length.zero?
+      QueenCheck::Gen.unit("")
+    else
+      QueenCheck::Gen.rand.resize(1, length).fmap { | r |
+        str = []
+        r.times { str << QueenCheck::Alphabet.arbitrary.gen.value(0)[0] }
+        str.join()
+      }
+    end
+  })
+
 describe Sequel::Plugins::Cacheable do
+  QueenCheck("Generate Test Datas",
+  String, Fixnum, Float) do |string, fixnum, float|
+    float = float * 1.0 / (10 ** (rand(4) + 1))
+    RedisModel.create({
+      :string => string,
+      :int => fixnum,
+      :float => float,
+      :time => Time.now
+    })
+    true
+  end
+
   context "NoNameClass" do
     before {
       @model = Class.new(Sequel::Model(:rspec))
@@ -32,11 +57,11 @@ describe Sequel::Plugins::Cacheable do
 
     describe "cache control" do
       it "set" do
-        MemcacheModel.cache_set('MemcacheModel::test', 'string')
+        MemcacheModel.cache_set('MemcacheModel::test', MemcacheModel[1])
       end
 
       it "get" do
-        MemcacheModel.cache_get('MemcacheModel::test').should == 'string'
+        MemcacheModel.cache_get('MemcacheModel::test').should == MemcacheModel[1]
       end
 
       it "del" do
@@ -70,16 +95,23 @@ describe Sequel::Plugins::Cacheable do
 
     describe "cache control" do
       it "set" do
-        RedisModel.cache_set('RedisModel::test', 'string')
+        RedisModel.cache_set('RedisModel::test', RedisModel[1])
       end
 
       it "get" do
-        RedisModel.cache_get('RedisModel::test').should == 'string'
+        RedisModel.cache_get('RedisModel::test').should == RedisModel[1]
       end
 
       it "del" do
         RedisModel.cache_del('RedisModel::test')
         RedisModel.cache_get('RedisModel::test').should be_nil
+      end
+    end
+
+    describe "act as cache" do
+      it "Model[1]" do
+        obj = RedisModel[2]
+        p obj
       end
     end
   end
