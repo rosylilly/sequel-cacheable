@@ -8,5 +8,12 @@ require 'sequel-cacheable'
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
-  
+  DB = Sequel.sqlite
+  DB.create_table(:spec) do
+    primary_key :id
+    string :string
+    integer :int
+    float :float
+    time :time
+  end
 end
