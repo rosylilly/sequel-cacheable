@@ -80,7 +80,11 @@ module Sequel::Plugins
         objs = nil if objs == [nil]
 
         if objs && cache_options.pack_lib?
-          objs.map!{|obj| restore_cache(cache_options.pack_lib.unpack(obj))}
+          objs.map!{|obj| 
+            key = keys.shift
+            (obj && restore_cache(cache_options.pack_lib.unpack(obj))) ||
+              model[key.sub(/^#{model}::/, '')]
+          }
         end
 
         objs || []
