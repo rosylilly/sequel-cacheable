@@ -1,6 +1,51 @@
 = sequel-cacheable
 
-Description goes here.
+This plug-in caching mechanism to implement the Model of the Sequel
+
+== Usage
+
+Gemfile write:
+
+  gem "sequel"
+  gem "sequel-cacheable"
+  gem "redis"
+
+Source code write:
+
+  Sequel::Model.plugin :cacheable, Redis.new(host: 'localhost', port: 6379)
+
+Caching!
+
+== Options
+
+  Sequel::Model.plugin :cacheable, cache_client, options_hash
+
+tested cache_client:
+
+* Redis[https://rubygems.org/gems/redis]
+* Memcached[https://rubygems.org/gems/memcache]
+
+options:
+
+  {
+    :ttl => 3600, # time to live. default 3600
+    :ignore_exception => false, # through exception. default false
+    :pack_lib => MessagePack, # cache packing library. This Object should be have pack / unpack method.
+    :query_cache => false # enable query cache. default true if cache client implemented keys method
+  }
+
+== Cache Timing
+
+* select
+  * Model.find(id) => Model Cache
+  * Model.where(cond).all => Query Cache
+* insert / update
+  * clear model cache
+  * clear all query caches of model
+  * store a new record model cache
+* delete / destroy
+  * clear model cache
+  * clear all query caches of model
 
 == Contributing to sequel-cacheable
  
