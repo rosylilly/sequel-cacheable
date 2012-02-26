@@ -70,6 +70,22 @@ module Sequel::Plugins
         obj
       end
 
+      def cache_mget(*keys)
+        if cache_options.ignore_exceptions?
+          objs = cache_store.mget(*keys) rescue nil
+        else
+          objs = cache_store.mget(*keys)
+        end
+
+        objs = nil if objs == [nil]
+
+        if objs && cache_options.pack_lib?
+          objs.map!{|obj| restore_cache(cache_options.pack_lib.unpack(obj))}
+        end
+
+        objs || []
+      end
+
       def cache_del(key)
         cache_store.send(cache_store_type.delete_method, key)
       end
@@ -85,7 +101,7 @@ module Sequel::Plugins
       def restore_cache(object)
         return object if object.nil?
 
-        return object.map{|id| cache_get("#{model}::#{id}") } if object.kind_of?(Array)
+        return cache_mget(*object.map{|id| "#{model}::#{id}" }) if object.kind_of?(Array)
 
         object.keys.each do | key |
           value = object.delete(key)
