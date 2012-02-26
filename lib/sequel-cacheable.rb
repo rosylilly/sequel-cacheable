@@ -111,8 +111,12 @@ module Sequel::Plugins
           value = object.delete(key)
           key = key.to_sym rescue key
           case db_schema[key][:type]
+          when :date
+            value = Date.new(*value)
           when :time
             value = Sequel::SQLTime.at(value[0], value[1])
+          when :datetime
+            value = Time.at(value[0], value[1])
           end
           object[key] = value
         end
@@ -138,7 +142,9 @@ module Sequel::Plugins
         hash = {}
         @values.each_pair do | key, value |
           case value
-          when Sequel::SQLTime
+          when Date
+            value = [value.year, value.mon, value.mday, value.start]
+          when Sequel::SQLTime, Time
             value = [value.to_i, value.usec]
           end
           hash[key] = value

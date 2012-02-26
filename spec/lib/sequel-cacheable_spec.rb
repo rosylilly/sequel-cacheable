@@ -22,13 +22,18 @@ QueenCheck::Arbitrary(String, QueenCheck::Gen.quadratic(200).bind { | length |
 
 describe Sequel::Plugins::Cacheable do
   QueenCheck("Generate Test Datas",
-  String, Fixnum, Float) do |string, fixnum, float|
+  String, Fixnum, Float, Bignum, Boolean) do |string, fixnum, float, bignum, boolean|
     float = float * 1.0 / (10 ** (rand(4) + 1))
     RedisModel.create({
       :string => string,
-      :int => fixnum,
+      :integer => fixnum,
       :float => float,
-      :time => Time.now
+      :bignum => bignum,
+      :numeric => BigDecimal(float.to_s),
+      :date => Date.today,
+      :datetime => DateTime.now,
+      :time => Time.now,
+      :bool => boolean
     })
     true
   end
@@ -127,7 +132,7 @@ describe Sequel::Plugins::Cacheable do
       proc{ RedisModel.plugin :something_or_other}.should raise_error(LoadError)
     end
 
-    its("columns") { should == [:id, :string, :int, :float, :time]}
+    its("columns") { should == [:id,:string,:integer,:float,:bignum,:numeric,:date,:datetime,:time,:bool] }
 
     its("plugins") {
       should_not include(Sequel::Plugins::Cacheable)

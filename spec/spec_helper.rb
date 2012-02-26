@@ -18,10 +18,15 @@ RSpec.configure do |config|
   DB = Sequel.sqlite
   DB.create_table(:spec) do
     primary_key :id, :auto_increment => true
-    string :string
-    integer :int
-    float :float
-    time :time
+    String :string
+    Integer :integer
+    Float :float
+    Bignum :bignum
+    BigDecimal :numeric
+    Date :date
+    DateTime :datetime
+    Time :time, :only_time=>true 
+    TrueClass :bool
   end
   RedisCli = Redis.new(:host => 'localhost', :port => 6379)
   MemcacheCli = Memcache.new(:server => 'localhost:11211')
