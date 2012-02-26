@@ -7,6 +7,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 require 'sequel-cacheable'
 require 'redis'
+require 'memcache'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
@@ -22,4 +23,5 @@ RSpec.configure do |config|
     time :time
   end
   RedisCli = Redis.new(:host => 'localhost', :port => 6379)
+  MemcacheCli = Memcache.new(:server => 'localhost:11211')
 end

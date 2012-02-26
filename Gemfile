@@ -24,5 +24,6 @@ group :development do
   gem "growl"
 
   gem "sqlite3"
+  gem "memcache"
   gem "redis"
 end
