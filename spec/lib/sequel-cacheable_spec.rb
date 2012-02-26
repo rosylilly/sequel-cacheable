@@ -148,5 +148,29 @@ describe Sequel::Plugins::Cacheable do
         end
       end
     end
+
+    describe "query cache" do
+      it "set and get" do
+        models = RedisModel.limit(3).all
+        cache_key = RedisCli.keys('RedisModel::Query::*')[0]
+        RedisModel.cache_get(cache_key).should == models
+      end
+
+      it "clear on update" do
+        RedisModel.all
+        cache_key = RedisCli.keys('RedisModel::Query::*')
+        cache_key.should_not be_empty
+        RedisModel[2].save({:string => 'test++'})
+        RedisCli.keys('RedisModel::Query::*').should be_empty
+      end
+
+      it "clear on delete" do
+        RedisModel.all
+        cache_key = RedisCli.keys('RedisModel::Query::*')
+        cache_key.should_not be_empty
+        RedisModel[2].delete
+        RedisCli.keys('RedisModel::Query::*').should be_empty
+      end
+    end
   end
 end

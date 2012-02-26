@@ -44,6 +44,7 @@ module Sequel::Plugins
 
         ttl = ttl || cache_options.ttl
         if cache_options.pack_lib?
+          obj = obj.map{|o| o.msgpack_hash } if obj.kind_of?(Array)
           obj = cache_options.pack_lib.pack(obj)
         end
 
@@ -84,6 +85,8 @@ module Sequel::Plugins
       def restore_cache(object)
         return object if object.nil?
 
+        return object.map{|o| restore_cache(o) } if object.kind_of?(Array)
+
         object.keys.each do | key |
           value = object.delete(key)
           key = key.to_sym rescue key
@@ -101,10 +104,16 @@ module Sequel::Plugins
           cache_del(key)
         end
       end
+
+      def primary_key_lookup(key)
+        cache_set_get("#{model}::#{key}") do
+          super(key)
+        end
+      end
     end
 
     module InstanceMethods
-      def to_msgpack(*args)
+      def msgpack_hash
         hash = {}
         @values.each_pair do | key, value |
           case value
@@ -113,7 +122,11 @@ module Sequel::Plugins
           end
           hash[key] = value
         end
-        hash.to_msgpack
+        hash
+      end
+
+      def to_msgpack(*args)
+        msgpack_hash.to_msgpack
       end
 
       def after_initialize
@@ -156,7 +169,7 @@ module Sequel::Plugins
     end
 
     module DatasetMethods
-      def all
+      def all(*args)
         if model.cache_options.query_cache? && @row_proc.kind_of?(Class) && @row_proc.included_modules.include?(Sequel::Model::InstanceMethods)
           @row_proc.cache_set_get(query_to_cache_key) { super(*args) }
         else
