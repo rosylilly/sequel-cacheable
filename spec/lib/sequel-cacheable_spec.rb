@@ -15,8 +15,17 @@ describe Sequel::Plugins::Cacheable do
 
     its("plugins") {
       should_not include(Sequel::Plugins::Cacheable)
-      SpecModel.plugin :cacheable
+      SpecModel.plugin :cacheable, RedisCli
       should include(Sequel::Plugins::Cacheable)
     }
+
+    its("cache_store") {
+      should == RedisCli
+    }
+
+    its("cache_store_type.set_with_ttl?") { should be_false }
+
+    its("cache_options.ttl") { should == 3600 }
+    its("cache_options.ignore_exceptions") { should be_false }
   end
 end

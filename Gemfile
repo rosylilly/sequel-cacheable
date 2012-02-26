@@ -8,6 +8,7 @@ source "http://rubygems.org"
 
 gem 'sequel', '~> 3.32.0'
 gem 'msgpack', '~> 0.4.6'
+gem 'hashr', '~> 0.0.19'
 
 group :development do
   gem "bundler", ">= 1.0.0"
