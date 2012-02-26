@@ -77,8 +77,6 @@ module Sequel::Plugins
           objs = cache_store.mget(*keys)
         end
 
-        objs = nil if objs == [nil]
-
         if objs && cache_options.pack_lib?
           objs.map!{|obj| 
             key = keys.shift
