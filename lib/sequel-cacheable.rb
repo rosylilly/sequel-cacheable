@@ -18,7 +18,8 @@ module Sequel::Plugins
         @cache_options = Hashr.new(options, {
           :ttl => 3600,
           :ignore_exception => false,
-          :pack_lib => MessagePack
+          :pack_lib => MessagePack,
+          :query_cache => store.respond_to?(:keys)
         })
       end
     end
@@ -39,6 +40,8 @@ module Sequel::Plugins
       end
 
       def cache_set(key, obj, ttl = nil)
+        return obj if obj.nil?
+
         ttl = ttl || cache_options.ttl
         if cache_options.pack_lib?
           obj = cache_options.pack_lib.pack(obj)
@@ -68,7 +71,6 @@ module Sequel::Plugins
 
       def cache_del(key)
         cache_store.send(cache_store_type.delete_method, key)
-        nil
       end
 
       def cache_set_get(key, ttl = nil)
@@ -79,15 +81,25 @@ module Sequel::Plugins
         val
       end
 
-      private
       def restore_cache(object)
-        object.each_pair do | key, value |
-          case db_schema[key.to_sym][:type]
+        return object if object.nil?
+
+        object.keys.each do | key |
+          value = object.delete(key)
+          key = key.to_sym rescue key
+          case db_schema[key][:type]
           when :time
-            object[key] = Sequel::SQLTime.at(value)
+            value = Sequel::SQLTime.at(value[0], value[1])
           end
+          object[key] = value
         end
         new(object, true)
+      end
+
+      def clear_query_cache
+        cache_store.keys("#{model.name}::Query::*").each do | key |
+          cache_del(key)
+        end
       end
     end
 
@@ -97,17 +109,55 @@ module Sequel::Plugins
         @values.each_pair do | key, value |
           case value
           when Sequel::SQLTime
-            value = value.to_i
+            value = [value.to_i, value.usec]
           end
           hash[key] = value
         end
         hash.to_msgpack
       end
+
+      def after_initialize
+        store_cache
+        super
+      end
+
+      def after_update
+        restore_cache
+        super
+      end
+
+      def delete
+        delete_cache
+        super
+      end
+
+      def destroy(*args)
+        delete_cache
+        super(*args)
+      end
+
+      def store_cache
+        model.cache_set(cache_key, self)
+      end
+
+      def delete_cache
+        model.cache_del(cache_key)
+        model.clear_query_cache
+      end
+
+      def restore_cache
+        delete_cache
+        store_cache
+      end
+
+      def cache_key
+        "#{self.class.name}::#{self.id.to_s}"
+      end
     end
 
     module DatasetMethods
       def all
-        if @row_proc.kind_of?(Class) && @row_proc.included_modules.include?(Sequel::Model::InstanceMethods)
+        if model.cache_options.query_cache? && @row_proc.kind_of?(Class) && @row_proc.included_modules.include?(Sequel::Model::InstanceMethods)
           @row_proc.cache_set_get(query_to_cache_key) { super(*args) }
         else
           super(*args)
@@ -115,16 +165,15 @@ module Sequel::Plugins
       end
 
       def first(*args)
-        if @row_proc.kind_of?(Class) && @row_proc.included_modules.include?(Sequel::Model::InstanceMethods)
+        if model.cache_options.query_cache? && @row_proc.kind_of?(Class) && @row_proc.included_modules.include?(Sequel::Model::InstanceMethods)
           @row_proc.cache_set_get(query_to_cache_key) { super(*args) }
         else
           super(*args)
         end
       end
 
-      private
       def query_to_cache_key
-        select_sql.gsub(/ /, '_')
+        model.name + '::Query::' + select_sql.gsub(/ /, '_')
       end
     end
   end

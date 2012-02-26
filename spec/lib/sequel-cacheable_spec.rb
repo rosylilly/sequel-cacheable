@@ -61,7 +61,8 @@ describe Sequel::Plugins::Cacheable do
       end
 
       it "get" do
-        MemcacheModel.cache_get('MemcacheModel::test').should == MemcacheModel[1]
+        cache = MemcacheModel.cache_get('MemcacheModel::test')
+        cache.should == MemcacheModel[1]
       end
 
       it "del" do
@@ -109,9 +110,42 @@ describe Sequel::Plugins::Cacheable do
     end
 
     describe "act as cache" do
-      it "Model[1]" do
-        obj = RedisModel[2]
-        p obj
+      context "Model[50]" do
+        before do
+          @obj = RedisModel[50]
+        end
+
+        it "stored cache" do
+          RedisCli.keys(@obj.cache_key).should == [@obj.cache_key]
+        end
+
+        it "restoreble cache data" do
+          cached = MessagePack.unpack(RedisCli.get(@obj.cache_key))
+          cached['string'].should == @obj.string
+          Time.at(cached['time'][0], cached['time'][1]).should === @obj.time
+        end
+
+        it "update cache data" do
+          @obj.string = 'modified++'
+          cached = MessagePack.unpack(RedisCli.get(@obj.cache_key))
+          cached['string'].should_not == @obj.string
+          @obj.save
+          cached = MessagePack.unpack(RedisCli.get(@obj.cache_key))
+          cached['string'].should == @obj.string
+        end
+
+        it "delete cache data" do
+          @obj.delete
+          RedisCli.keys(@obj.cache_key).should == []
+          RedisModel[50].should be_nil
+        end
+
+        it "destroy cache data" do
+          @obj = RedisModel[51]
+          @obj.delete
+          RedisCli.keys(@obj.cache_key).should == []
+          RedisModel[51].should be_nil
+        end
       end
     end
   end

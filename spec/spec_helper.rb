@@ -25,4 +25,9 @@ RSpec.configure do |config|
   end
   RedisCli = Redis.new(:host => 'localhost', :port => 6379)
   MemcacheCli = Memcache.new(:server => 'localhost:11211')
+
+  config.after(:all) {
+    RedisCli.flushall
+    MemcacheCli.flush_all
+  }
 end
