@@ -7,6 +7,7 @@ source "http://rubygems.org"
 # Include everything needed to run rake, tests, features, etc.
 
 gem 'sequel', '~> 3.32.0'
+gem 'msgpack', '~> 0.4.6'
 
 group :development do
   gem "bundler", ">= 1.0.0"
@@ -19,6 +20,8 @@ group :development do
 
   gem "guard", '~> 1.0.0'
   gem "guard-rspec", '~> 0.6.0'
+  gem "growl"
 
   gem "sqlite3"
+  gem "redis"
 end
