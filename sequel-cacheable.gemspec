@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "sequel-cacheable"
-  s.version = "0.0.3"
+  s.version = "0.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sho Kusano <rosylilly>"]
-  s.date = "2012-02-26"
+  s.date = "2012-02-27"
   s.description = "This plug-in caching mechanism to implement the Model of the Sequel"
   s.email = "rosylilly@aduca.org"
   s.extra_rdoc_files = [
