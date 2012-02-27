@@ -1,4 +1,4 @@
-= sequel-cacheable
+= sequel-cacheable http://travis-ci.org/rosylilly/sequel-cacheable.png
 
 This plug-in caching mechanism to implement the Model of the Sequel
 
