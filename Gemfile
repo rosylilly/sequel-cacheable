@@ -10,7 +10,7 @@ gem 'sequel', '~> 3.32.0'
 gem 'msgpack', '~> 0.4.6'
 gem 'hashr', '~> 0.0.19'
 
-group :development do
+group :development, :test do
   gem "bundler", ">= 1.0.0"
 
   gem "rspec", "~> 2.8.0"
