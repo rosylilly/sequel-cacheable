@@ -115,6 +115,10 @@ module Sequel::Plugins
             value = Sequel::SQLTime.at(value[0], value[1])
           when :datetime
             value = Time.at(value[0], value[1])
+          when :decimal
+            value = BigDecimal.new(value)
+          when :integer
+            value = value.to_i
           end
           object[key] = value
         end
@@ -144,6 +148,8 @@ module Sequel::Plugins
             value = [value.year, value.mon, value.mday, value.start]
           when Sequel::SQLTime, Time
             value = [value.to_i, value.usec]
+          when BigDecimal, Bignum
+            value = value.to_s
           end
           hash[key] = value
         end

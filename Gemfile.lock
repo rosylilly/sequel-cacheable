@@ -35,7 +35,7 @@ GEM
     rspec-expectations (2.8.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.8.0)
-    sequel (3.32.0)
+    sequel (3.33.0)
     simplecov (0.6.1)
       multi_json (~> 1.0)
       simplecov-html (~> 0.5.3)
@@ -60,7 +60,7 @@ DEPENDENCIES
   rdoc (~> 3.12)
   redis
   rspec (~> 2.8.0)
-  sequel (~> 3.32.0)
+  sequel (~> 3.33.0)
   simplecov (~> 0.6.1)
   sqlite3
   yard (~> 0.7)
