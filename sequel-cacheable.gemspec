@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "sequel-cacheable"
-  s.version = "0.0.4"
+  s.version = "0.0.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sho Kusano <rosylilly>"]
-  s.date = "2012-02-27"
+  s.date = "2012-03-01"
   s.description = "This plug-in caching mechanism to implement the Model of the Sequel"
   s.email = "rosylilly@aduca.org"
   s.extra_rdoc_files = [
@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.files = [
     ".document",
     ".rspec",
+    ".travis.yml",
     "Gemfile",
     "Gemfile.lock",
     "Guardfile",
@@ -41,7 +42,7 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<sequel>, ["~> 3.32.0"])
+      s.add_runtime_dependency(%q<sequel>, ["~> 3.33.0"])
       s.add_runtime_dependency(%q<msgpack>, ["~> 0.4.6"])
       s.add_runtime_dependency(%q<hashr>, ["~> 0.0.19"])
       s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
@@ -58,7 +59,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<redis>, [">= 0"])
       s.add_development_dependency(%q<queencheck>, [">= 0"])
     else
-      s.add_dependency(%q<sequel>, ["~> 3.32.0"])
+      s.add_dependency(%q<sequel>, ["~> 3.33.0"])
       s.add_dependency(%q<msgpack>, ["~> 0.4.6"])
       s.add_dependency(%q<hashr>, ["~> 0.0.19"])
       s.add_dependency(%q<bundler>, [">= 1.0.0"])
@@ -76,7 +77,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<queencheck>, [">= 0"])
     end
   else
-    s.add_dependency(%q<sequel>, ["~> 3.32.0"])
+    s.add_dependency(%q<sequel>, ["~> 3.33.0"])
     s.add_dependency(%q<msgpack>, ["~> 0.4.6"])
     s.add_dependency(%q<hashr>, ["~> 0.0.19"])
     s.add_dependency(%q<bundler>, [">= 1.0.0"])
