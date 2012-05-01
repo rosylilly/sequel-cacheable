@@ -6,7 +6,7 @@ source "http://rubygems.org"
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 
-gem 'sequel', '~> 3.34.0'
+gem 'sequel', '~> 3.34'
 gem 'msgpack', '~> 0.4.6'
 gem 'hashr', '~> 0.0.19'
 
