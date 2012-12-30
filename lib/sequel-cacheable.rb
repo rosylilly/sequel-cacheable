@@ -17,6 +17,10 @@ module Sequel::Plugins
           :pack_lib => MessagePack,
           :query_cache => false
         }.merge(options)
+        @caches = {
+          :instance => [],
+          :query => []
+        }
       end
     end
   end

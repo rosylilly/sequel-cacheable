@@ -31,7 +31,7 @@ module Sequel::Plugins
 
       def set(key, val, expire = nil)
         @store.set(key, @pack_lib.pack(val))
-        @store.expire(key, expire) unless expire.nil?
+        expire(key, expire) unless expire.nil?
 
         return val
       end

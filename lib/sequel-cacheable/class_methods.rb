@@ -7,17 +7,10 @@ module Sequel::Plugins
 
       def inherited(subclass)
         super
-
-        driver = @cache_drvier
-        options = @cache_options
-
-        subclass.instance_eval do
-          @cache_driver = driver
-          @cache_options = options
-        end
       end
 
       def cache_key(key)
+        @caches[key.match(/\AQuery:/) ? :query : :instance] << key
         "#{self.name}:#{key}"
       end
 
@@ -34,7 +27,11 @@ module Sequel::Plugins
       end
 
       def cache_del(key)
-        cache_driver.del(key)
+        cache_driver.del(cache_key(key))
+      end
+
+      def cache_clear(type)
+        @caches[type].dup.each {|key| cache_del(key) }
       end
     end
   end

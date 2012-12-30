@@ -94,5 +94,63 @@ shared_examples :cacheable do
   end
 
   describe 'InstanceMethods' do
+    let(:instance) { model.first }
+
+    describe '#after_initialize' do
+      it 'should call #cache!' do
+        model.any_instance.should_receive(:cache!)
+        model.first
+      end
+    end
+
+    describe '#after_update' do
+      it 'should call #recache!' do
+        instance.string = 'hoge'
+        instance.should_receive(:recache!)
+        instance.save
+      end
+    end
+
+    describe '#destory' do
+      it 'should call #uncache!' do
+        instance.should_receive(:uncache!)
+        instance.destroy
+      end
+    end
+
+    describe '#delete' do
+      it 'should call #uncache!' do
+        instance.should_receive(:uncache!)
+        instance.delete
+      end
+    end
+
+    describe '#cache!' do
+      it 'should call .cache_set' do
+        instance = model.first
+        model.should_receive(:cache_set).with(instance.id.to_s, instance)
+        instance.cache!
+      end
+    end
+
+    describe '#uncache!' do
+      it 'should call .cache_del' do
+        model.should_receive(:cache_del).with(instance.id.to_s)
+        instance.uncache!
+      end
+
+      it 'should call .cache_clear(:query)' do
+        model.should_receive(:cache_clear).with(:query)
+        instance.uncache!
+      end
+    end
+
+    describe '#recache!' do
+      it 'should call #uncache! and #cache!' do
+        instance.should_receive(:uncache!)
+        instance.should_receive(:cache!)
+        instance.recache!
+      end
+    end
   end
 end
