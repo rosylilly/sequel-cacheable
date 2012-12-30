@@ -8,15 +8,15 @@ shared_examples :cacheable do
 
     3.times do
       model.create(
-        string: Forgery::Basic.text,
-        integer: rand(255),
-        float: rand(3000).to_f / 10.0,
-        bignum: (2 + rand(10)) ** 100,
-        numeric: BigDecimal(rand(100).to_s),
-        date: Date.today,
-        datetime: DateTime.now,
-        time: Time.now,
-        bool: rand(2).odd?
+        :string => Forgery::Basic.text,
+        :integer => rand(255),
+        :float => rand(3000).to_f / 10.0,
+        :bignum => (2 + rand(10)) ** 100,
+        :numeric => BigDecimal(rand(100).to_s),
+        :date => Date.today,
+        :datetime => DateTime.now,
+        :time => Time.now,
+        :bool => rand(2).odd?
       )
     end
   end
