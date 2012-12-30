@@ -9,6 +9,12 @@ module Sequel::Plugins
         super
       end
 
+      def primary_key_lookup(id)
+        cache_fetch(id.to_s) do
+          super
+        end
+      end
+
       def cache_key(key)
         @caches[key.match(/\AQuery:/) ? :query : :instance] << key
         "#{self.name}:#{key}"
