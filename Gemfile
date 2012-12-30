@@ -22,4 +22,5 @@ group :development, :test do
   gem 'hiredis'
   gem 'redis', :require => ['redis', 'redis/connection/hiredis']
   gem 'pry'
+  gem 'forgery'
 end

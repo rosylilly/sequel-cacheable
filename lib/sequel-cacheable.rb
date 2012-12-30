@@ -14,9 +14,8 @@ module Sequel::Plugins
         @cache_driver = Driver.factory(store)
         @cache_options = {
           :ttl => 3600,
-          :ignore_exception => false,
           :pack_lib => MessagePack,
-          :query_cache => store.respond_to?(:keys)
+          :query_cache => false
         }.merge(options)
       end
     end

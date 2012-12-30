@@ -25,4 +25,11 @@ RSpec.configure do |config|
     MemcacheCli.flush_all
     DalliCli.flush_all
   end
+
+  config.around(:each) do |e|
+    DB.transaction do
+      e.run
+      raise Sequel::Rollback
+    end
+  end
 end
