@@ -1,5 +1,3 @@
-require 'msgpack'
-
 module Sequel::Plugins
   module Cacheable
     DRIVERS = %w(memcache dalli redis).freeze
@@ -18,19 +16,19 @@ module Sequel::Plugins
         end
       end
 
-      def initialize(store, pack_lib = MessagePack)
+      def initialize(store, pack_lib = MessagePackPacker)
         @store = store
-        @pack_lib = MessagePack
+        @packer = pack_lib
       end
 
       def get(key)
         val = @store.get(key)
 
-        return val.nil? ? val : @pack_lib.unpack(val)
+        return val.nil? || val.empty? ? nil : @packer.unpack(val)
       end
 
       def set(key, val, expire = nil)
-        @store.set(key, @pack_lib.pack(val))
+        @store.set(key, @packer.pack(val))
         expire(key, expire) unless expire.nil?
 
         return val

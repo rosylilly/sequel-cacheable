@@ -4,18 +4,23 @@ module Sequel::Plugins
   module Cacheable
     module InstanceMethods
       def after_initialize
+        super
         cache! unless id.nil?
-        super
       end
 
-      def after_update
+      def after_save
+        super
         recache!
-        super
       end
 
-      def delete
+      def delete(*args)
         uncache!
         super
+      end
+
+      def destory(*args)
+        uncache!
+        super(*args)
       end
 
       def cache!

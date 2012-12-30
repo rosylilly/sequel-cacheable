@@ -4,6 +4,8 @@ shared_examples :cacheable do
   let(:model) { described_class }
 
   before do
+    model.cache_clear(:query)
+
     3.times do
       model.create(
         string: Forgery::Basic.text,
@@ -21,7 +23,7 @@ shared_examples :cacheable do
 
   describe 'ClassMethods' do
     let(:key) { 'cache_key' }
-    let(:value) { 1 }
+    let(:value) { model.first }
 
     describe '#cache_set' do
       subject(:cache_set) { model.cache_set(key, value) }
@@ -61,34 +63,37 @@ shared_examples :cacheable do
 
     describe '#cache_fetch' do
       it 'should call driver#fetch' do
-        model.cache_driver.should_receive(:fetch).and_call_original
+        model.cache_driver.should_receive(:fetch).at_least(1).times.and_call_original
+
         model.cache_fetch('test') do
-          2
+          value
         end
       end
     end
   end
 
   describe 'DatasetMethods' do
+    let(:dataset) { model.dataset }
+
     describe '#all' do
-      subject(:fetch_all) { model.all }
+      subject(:fetch_all) { dataset.all }
 
       it { should have(3).records }
 
-      it 'should call .cache_fetch' do
-        model.should_receive(:cache_fetch).and_return([])
-        fetch_all
+      it { should == model.all }
+
+      it 'should store query cache' do
+        expect { fetch_all }.to change { model.caches[:query].size }.from(0).to(1)
       end
     end
 
     describe '#first' do
-      subject(:fetch_first) { model.first }
+      subject(:fetch_first) { dataset.first }
 
       it { should be_kind_of(model) }
 
-      it 'should cfirst .cache_fetch' do
-        model.should_receive(:cache_fetch).and_return([])
-        fetch_first
+      it 'should store query cache' do
+        expect { fetch_first }.to change { model.caches[:query].size }.from(0).to(1)
       end
     end
   end
@@ -135,7 +140,7 @@ shared_examples :cacheable do
 
     describe '#uncache!' do
       it 'should call .cache_del' do
-        model.should_receive(:cache_del).with(instance.id.to_s)
+        model.should_receive(:cache_del).at_least(1).times
         instance.uncache!
       end
 
