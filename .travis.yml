@@ -1,5 +1,8 @@
+services:
+  - memcached
+  - redis-server
 bundler_args: --without development
-script: bundle exec rake spec
+script: bundle exec rspec
 language: ruby
 rvm:
   - 1.8.7
