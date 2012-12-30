@@ -24,41 +24,41 @@ module Sequel::Plugins
       end
 
       def after_initialize
-        store_cache unless id.nil?
+        cache! unless id.nil?
         super
       end
 
       def after_update
-        restore_cache
+        recache!
+        super
+      end
+
+      def before_destroy
+        uncache!
         super
       end
 
       def delete
-        delete_cache
+        uncache!
         super
       end
 
-      def destroy(*args)
-        delete_cache
-        super(*args)
-      end
-
-      def store_cache
+      def cache!
         model.cache_set(cache_key, self)
       end
 
-      def delete_cache
+      def uncache!
         model.cache_del(cache_key)
         model.clear_query_cache
       end
 
-      def restore_cache
-        delete_cache
-        store_cache
+      def recache!
+        uncache!
+        cache!
       end
 
       def cache_key
-        "#{self.class.name}::#{self.id.to_s}"
+        "#{self.id.to_s}"
       end
     end
   end

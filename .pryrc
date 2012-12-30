@@ -13,5 +13,5 @@ end
 
 require 'memcache/null_server'
 class Mock < Sequel::Model(:mock)
-  plugin :cacheable, Memcache::NullServer.new
+  plugin :cacheable, Redis.new(server: 'localhost:6379')
 end
