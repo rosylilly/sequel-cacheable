@@ -1,8 +1,6 @@
-# coding: utf-8
-
 module Sequel::Plugins
   module Cacheable
-    module ClassMethods
+    class MemcacheDriver < Driver
     end
   end
 end
