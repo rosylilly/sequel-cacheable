@@ -23,15 +23,16 @@ Caching!
 tested cache_client:
 
 * Redis[https://rubygems.org/gems/redis]
+* Hiredis[https://rubygems.org/gems/hiredis]
 * Memcached[https://rubygems.org/gems/memcache]
+* Dalli[https://rubygems.org/gems/dalli]
 
 options:
 
   {
     :ttl => 3600, # time to live. default 3600
-    :ignore_exception => false, # through exception. default false
     :pack_lib => MessagePack, # cache packing library. This Object should be have pack / unpack method.
-    :query_cache => false # enable query cache. default true if cache client implemented keys method
+    :query_cache => false # enable query cache. default false
   }
 
 == Cache Timing
@@ -48,7 +49,7 @@ options:
   * clear all query caches of model
 
 == Contributing to sequel-cacheable
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
 * Fork the project.
