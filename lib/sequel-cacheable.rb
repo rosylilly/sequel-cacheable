@@ -12,12 +12,12 @@ module Sequel::Plugins
     def self.configure(model, store, options = {})
       model.instance_eval do
         @cache_driver = Driver.factory(store)
-        @cache_options = Hashr.new(options, {
+        @cache_options = {
           :ttl => 3600,
           :ignore_exception => false,
           :pack_lib => MessagePack,
           :query_cache => store.respond_to?(:keys)
-        })
+        }.merge(options)
       end
     end
   end
