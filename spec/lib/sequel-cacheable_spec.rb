@@ -7,6 +7,10 @@ class MemcacheModel < Sequel::Model(:spec)
   plugin :cacheable, MemcacheCli
 end
 
+class DalliModel < Sequel::Model(:spec)
+  plugin :cacheable, DalliCli
+end
+
 QueenCheck::Arbitrary(Float, Fixnum.arbitrary.gen)
 QueenCheck::Arbitrary(String, QueenCheck::Gen.quadratic(200).bind { | length |
     if length.zero?
@@ -43,7 +47,7 @@ describe Sequel::Plugins::Cacheable do
       @model = Class.new(Sequel::Model(:rspec))
     }
 
-    it "should raise NoMethodError if the delete method is not found" do 
+    it "should raise NoMethodError if the delete method is not found" do
       proc {
         @model.plugin :cacheable, 1
       }.should raise_error(NoMethodError)
@@ -122,6 +126,81 @@ describe Sequel::Plugins::Cacheable do
       end
 
       pending "not supported query cache on Memcache Client"
+    end
+  end
+
+  context DalliModel do
+    subject { DalliModel }
+
+    its("cache_store") { should == DalliCli }
+    its("cache_store_type.set_with_ttl?") { should be_true }
+    its("cache_store_type.delete_method") { should == :delete }
+    its("cache_options.ttl") { should == 3600 }
+    its("cache_options.ignore_exceptions") { should be_false }
+    its("cache_options.pack_lib") { should == MessagePack }
+
+    describe "cache control" do
+      it "set" do
+        DalliModel.cache_set('DalliModel::test', DalliModel[1])
+      end
+
+      it "get" do
+        cache = DalliModel.cache_get('DalliModel::test')
+        cache.should == DalliModel[1]
+      end
+
+      it "del" do
+        DalliModel.cache_del('DalliModel::test')
+        DalliModel.cache_get('DalliModel::test').should be_nil
+      end
+    end
+
+    describe "act as cache" do
+      context "Model[40]" do
+        before do
+          @obj = DalliModel[40]
+        end
+
+        it "stored cache" do
+          DalliModel.cache_get(@obj.cache_key).should == @obj
+        end
+
+        it "restoreble cache data" do
+          cached = MessagePack.unpack(DalliCli.get(@obj.cache_key))
+          cached['string'].should == @obj.string
+          Time.at(cached['time'][0], cached['time'][1]).should === @obj.time
+        end
+
+        it "update cache data" do
+          @obj.string = 'modified++'
+          cached = MessagePack.unpack(DalliCli.get(@obj.cache_key))
+          cached['string'].should_not == @obj.string
+          @obj.save
+          cached = MessagePack.unpack(DalliCli.get(@obj.cache_key))
+          cached['string'].should == @obj.string
+        end
+
+        it "delete cache data" do
+          cache_key = @obj.cache_key; @obj.delete
+          DalliCli.get(cache_key).should be_nil
+          DalliModel[40].should be_nil
+        end
+
+        it "destroy cache data" do
+          @obj = DalliModel[41]
+          cache_key = @obj.cache_key; @obj.destroy
+          DalliCli.get(cache_key).should be_nil
+          DalliModel[41].should be_nil
+        end
+      end
+    end
+
+    describe "query cache" do
+      it "get" do
+        DalliModel.all.should == DalliModel.all
+      end
+
+      pending "not supported query cache on Dalli Client"
     end
   end
 

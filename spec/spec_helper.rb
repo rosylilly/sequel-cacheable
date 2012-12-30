@@ -7,6 +7,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 require 'sequel-cacheable'
 require 'redis'
+require 'dalli'
 require 'memcache'
 require 'queencheck/rspec'
 
@@ -25,11 +26,12 @@ RSpec.configure do |config|
     BigDecimal :numeric
     Date :date
     DateTime :datetime
-    Time :time, :only_time=>true 
+    Time :time, :only_time=>true
     TrueClass :bool
   end
   RedisCli = Redis.new(:host => 'localhost', :port => 6379)
   MemcacheCli = Memcache.new(:server => 'localhost:11211')
+  DalliCli = Dalli::Client.new('localhost:11211')
 
   config.after(:all) {
     RedisCli.flushall
