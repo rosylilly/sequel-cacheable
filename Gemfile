@@ -19,6 +19,7 @@ group :development, :test do
   gem 'sqlite3'
   gem 'dalli'
   gem 'memcache'
-  gem 'redis'
+  gem 'hiredis'
+  gem 'redis', :require => ['redis', 'redis/connection/hiredis']
   gem 'pry'
 end

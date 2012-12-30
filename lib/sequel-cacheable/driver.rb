@@ -5,14 +5,16 @@ module Sequel::Plugins
     DRIVERS = %w(memcache dalli redis).freeze
 
     class Driver
-      def self.factory(store)
-        case store.class.name
+      def self.factory(*args)
+        case args[0].class.name
         when 'Memcache'
-          MemcacheDriver.new(store)
+          MemcacheDriver.new(*args)
         when 'Dalli::Client'
-          DalliDriver.new(store)
+          DalliDriver.new(*args)
         when 'Redis'
-          RedisDriver.new(store)
+          RedisDriver.new(*args)
+        else
+          Driver.new(*args)
         end
       end
 
