@@ -44,8 +44,8 @@ module Sequel::Plugins
         @store.expire(key, time)
       end
 
-      def fetch(key, *args, &block)
-        get(key) || set(key, block.call(*args))
+      def fetch(key, ttl = nil, &block)
+        get(key) || set(key, block.call, ttl)
       end
     end
   end
