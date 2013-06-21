@@ -116,7 +116,7 @@ shared_examples :cacheable do
       end
     end
 
-    describe '#destory' do
+    describe '#destroy' do
       it 'should call #uncache!' do
         instance.should_receive(:uncache!)
         instance.destroy
