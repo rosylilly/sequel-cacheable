@@ -10,6 +10,12 @@ require 'sequel-cacheable/dataset_methods'
 
 module Sequel::Plugins
   module Cacheable
+    def self.apply(model, store, options = {})
+      model.instance_eval do
+        plugin :after_initialize
+      end
+    end
+
     def self.configure(model, store, options = {})
       model.instance_eval do
         @cache_options = {
