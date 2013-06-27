@@ -18,7 +18,7 @@ module Sequel::Plugins
         super
       end
 
-      def destory(*args)
+      def destroy(*args)
         uncache!
         super(*args)
       end
