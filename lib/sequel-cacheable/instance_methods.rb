@@ -26,11 +26,6 @@ module Sequel::Plugins
         super
       end
 
-      def destroy(*args)
-        uncache!
-        super(*args)
-      end
-
       def cache!
         model.cache_set(cache_key, self)
       end
