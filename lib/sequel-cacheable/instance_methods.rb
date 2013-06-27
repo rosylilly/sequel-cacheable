@@ -1,8 +1,16 @@
 # coding: utf-8
+begin
+  require 'sequel/plugins/after_initialize'
+rescue LoadError
+end
 
 module Sequel::Plugins
   module Cacheable
     module InstanceMethods
+      if Sequel::Plugins.const_defined?(:AfterInitialize)
+        include Sequel::Plugins::AfterInitialize
+      end
+
       def after_initialize
         super
         cache! unless id.nil?
